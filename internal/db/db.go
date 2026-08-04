@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/H0wZy/authsys/internal/models"
+	"github.com/H0wZy/authsys/internal/model"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,12 +20,13 @@ func Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
+		os.Getenv("SSL_MODE"),
 	)
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -34,7 +35,7 @@ func Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = DB.AutoMigrate(&models.User{})
+	err = DB.AutoMigrate(&model.User{})
 	if err != nil {
 		log.Printf("Migration Error: %v\n", err)
 		return nil, err
