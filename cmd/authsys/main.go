@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/H0wZy/authsys/internal/db"
+	"github.com/H0wZy/authsys/internal/handler"
 	"github.com/H0wZy/authsys/internal/jwt"
 	"github.com/H0wZy/authsys/internal/repository"
 	"github.com/H0wZy/authsys/internal/service"
@@ -22,8 +23,11 @@ func main() {
 	jwtManager := jwt.NewJwtManager(secret, 24*time.Hour)
 
 	userRepository := repository.NewUserRepository(conn)
-	authService := service.NewAuthService(userRepository, jwtManager)
+
 	userService := service.NewUserService(userRepository)
+	authService := service.NewAuthService(userRepository, jwtManager)
+
+	userHandler := handler.NewUserHandler(userService)
 
 	r := gin.Default()
 

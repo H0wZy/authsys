@@ -8,12 +8,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Username  string     `gorm:"type:varchar(50);uniqueIndex;not null" json:"username"`
-	Email     string     `gorm:"type:varchar(100);uniqueIndex;not null" json:"email"`
-	Name      string     `gorm:"type:varchar(255);not null" json:"name"`
-	Password  string     `gorm:"type:varchar(60);not null" json:"-"`
-	Phone     string     `gorm:"type:varchar(20);not null" json:"phone"`
-	BirthDate *time.Time `json:"birth_date,omitempty"`
+	Username  string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"username"`
+	Email     string    `gorm:"type:varchar(100);uniqueIndex;not null" json:"email"`
+	Name      string    `gorm:"type:varchar(255);not null" json:"name"`
+	Password  string    `gorm:"type:varchar(60);not null" json:"-"`
+	Phone     string    `gorm:"type:varchar(20);not null" json:"phone"`
+	BirthDate time.Time `json:"birth_date"`
 	Account
 }
 

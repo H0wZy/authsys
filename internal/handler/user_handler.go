@@ -1,0 +1,47 @@
+package handler
+
+import (
+	"errors"
+
+	"github.com/H0wZy/authsys/internal/dto"
+	"github.com/H0wZy/authsys/internal/errorlist"
+	"github.com/H0wZy/authsys/internal/response"
+	"github.com/H0wZy/authsys/internal/service"
+	"github.com/gin-gonic/gin"
+)
+
+type userHandler struct {
+	userService service.UserService
+}
+
+func (ctrl *userHandler) Create(ctx *gin.Context) {
+	var input dto.CreateUser
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(ctx, "error while binding json:", err.Error())
+		return
+	}
+
+	user, err := ctrl.userService.Create(ctx.Request.Context(), &input)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, errorlist.EmailAlreadyExists), errors.Is(err, errorlist.UsernameAlreadyExists):
+			response.Conflict(ctx, err.Error())
+
+		case errors.Is(err, errorlist.UsernameCantContainAt), errors.Is(err, errorlist.InvalidBirthDate):
+			response.BadRequest(ctx, err.Error())
+
+		default:
+			response.InternalServerError(ctx)
+		}
+
+		return
+	}
+
+	response.Created(ctx, dto.ToUserResponse(user))
+}
+
+func NewUserHandler(userService service.UserService) *userHandler {
+	return &userHandler{userService: userService}
+}
