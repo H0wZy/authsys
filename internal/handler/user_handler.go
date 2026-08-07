@@ -10,11 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type userHandler struct {
+type UserHandler struct {
 	userService service.UserService
 }
 
-func (ctrl *userHandler) Create(ctx *gin.Context) {
+func (ctrl *UserHandler) Create(ctx *gin.Context) {
 	var input dto.CreateUser
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -42,6 +42,6 @@ func (ctrl *userHandler) Create(ctx *gin.Context) {
 	response.Created(ctx, dto.ToUserResponse(user))
 }
 
-func NewUserHandler(userService service.UserService) *userHandler {
-	return &userHandler{userService: userService}
+func NewUserHandler(userService service.UserService) *UserHandler {
+	return &UserHandler{userService: userService}
 }

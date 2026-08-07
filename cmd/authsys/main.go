@@ -9,8 +9,8 @@ import (
 	"github.com/H0wZy/authsys/internal/handler"
 	"github.com/H0wZy/authsys/internal/jwt"
 	"github.com/H0wZy/authsys/internal/repository"
+	"github.com/H0wZy/authsys/internal/router"
 	"github.com/H0wZy/authsys/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -25,11 +25,18 @@ func main() {
 	userRepository := repository.NewUserRepository(conn)
 
 	userService := service.NewUserService(userRepository)
-	authService := service.NewAuthService(userRepository, jwtManager)
-
 	userHandler := handler.NewUserHandler(userService)
 
-	r := gin.Default()
+	authService := service.NewAuthService(userRepository, jwtManager)
+	authHandler := handler.NewAuthHandler(authService)
 
-	r.Run(":8080")
+	h := router.Handlers{
+		User: userHandler,
+		Auth: authHandler,
+	}
+
+	r := router.New(h)
+	if err := r.Run(); err != nil {
+		panic(fmt.Errorf("failed to start server: %w", err))
+	}
 }
