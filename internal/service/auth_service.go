@@ -12,6 +12,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
+)
+
 type AuthService interface {
 	Login(ctx context.Context, dto *dto.Auth) (string, error)
 	Logout(ctx context.Context, user *model.User) error
@@ -33,11 +37,11 @@ func (s *authService) Login(ctx context.Context, dto *dto.Auth) (string, error) 
 	}
 
 	if err != nil {
-		return "", errors.New("invalid credentials")
+		return "", ErrInvalidCredentials
 	}
 
 	if bcryptErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(dto.Password)); bcryptErr != nil {
-		return "", errors.New("invalid credentials")
+		return "", ErrInvalidCredentials
 	}
 
 	return s.jwtm.Generate(user.ID, user.Email, user.Username)

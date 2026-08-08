@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/H0wZy/authsys/internal/model"
@@ -17,6 +18,10 @@ type UserRepository interface {
 	Update(ctx context.Context, user *model.User) error
 	Delete(ctx context.Context, id uint) error
 }
+
+var (
+	ErrUserNotFound = errors.New("user not found")
+)
 
 type userRepository struct {
 	db *gorm.DB

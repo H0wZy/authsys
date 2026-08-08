@@ -8,11 +8,18 @@ import (
 	"time"
 
 	"github.com/H0wZy/authsys/internal/dto"
-	"github.com/H0wZy/authsys/internal/errorlist"
 	"github.com/H0wZy/authsys/internal/model"
 	"github.com/H0wZy/authsys/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrInvalidBirthDate      = errors.New("invalid birth date")
+	ErrEmailAlreadyExists    = errors.New("email already exists")
+	ErrUsernameAlreadyExists = errors.New("username already exists")
+	ErrUsernameCantContainAt = errors.New("username cannot contain '@'")
+	ErrUserNotFound          = errors.New("user not found")
 )
 
 type UserService interface {
@@ -30,16 +37,16 @@ type userService struct {
 
 func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model.User, error) {
 	if input.BirthDate.After(time.Now()) {
-		return nil, errorlist.InvalidBirthDate
+		return nil, ErrInvalidBirthDate
 	}
 
 	if strings.Contains(input.Username, "@") {
-		return nil, errorlist.UsernameCantContainAt
+		return nil, ErrUsernameCantContainAt
 	}
 
 	_, err := s.repo.FindByEmail(ctx, input.Email)
 	if err == nil {
-		return nil, errorlist.EmailAlreadyExists
+		return nil, ErrEmailAlreadyExists
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("error checking email: %w", err)
@@ -47,7 +54,7 @@ func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model
 
 	_, err = s.repo.FindByUsername(ctx, input.Username)
 	if err == nil {
-		return nil, errorlist.UsernameAlreadyExists
+		return nil, ErrUsernameAlreadyExists
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("error checking username: %w", err)

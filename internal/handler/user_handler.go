@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/H0wZy/authsys/internal/dto"
-	"github.com/H0wZy/authsys/internal/errorlist"
 	"github.com/H0wZy/authsys/internal/response"
 	"github.com/H0wZy/authsys/internal/service"
 	"github.com/gin-gonic/gin"
@@ -26,10 +25,10 @@ func (ctrl *UserHandler) Create(ctx *gin.Context) {
 
 	if err != nil {
 		switch {
-		case errors.Is(err, errorlist.EmailAlreadyExists), errors.Is(err, errorlist.UsernameAlreadyExists):
+		case errors.Is(err, service.ErrEmailAlreadyExists), errors.Is(err, service.ErrUsernameAlreadyExists):
 			response.Conflict(ctx, err.Error())
 
-		case errors.Is(err, errorlist.UsernameCantContainAt), errors.Is(err, errorlist.InvalidBirthDate):
+		case errors.Is(err, service.ErrUsernameCantContainAt), errors.Is(err, service.ErrInvalidBirthDate):
 			response.BadRequest(ctx, err.Error())
 
 		default:
