@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -14,10 +14,17 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+
 	conn, err := db.Connect()
 	if err != nil {
-		panic(fmt.Errorf("failed to connect to database: %w", err))
+		logger.Error("failed to connect to database", slog.Any("error", err))
+		os.Exit(1)
 	}
+
+	logger.Info("database connected!")
 
 	secret := []byte(os.Getenv("JWT_SECRET"))
 	jwtManager := jwt.NewJwtManager(secret, 24*time.Hour)
@@ -35,8 +42,10 @@ func main() {
 		Auth: authHandler,
 	}
 
-	r := router.New(h)
+	r := router.New(h, logger)
+
 	if err := r.Run(); err != nil {
-		panic(fmt.Errorf("failed to start server: %w", err))
+		logger.Error("failed to start server", slog.Any("error", err))
+		os.Exit(1)
 	}
 }

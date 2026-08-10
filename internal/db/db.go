@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/H0wZy/authsys/internal/model"
@@ -11,13 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
 func Connect() (*gorm.DB, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("Error loading .env file: %v\n", err)
-		return nil, err
+	if err := godotenv.Load(); err != nil {
+		return nil, fmt.Errorf("error loading .env file: %w", err)
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
@@ -29,18 +24,14 @@ func Connect() (*gorm.DB, error) {
 		os.Getenv("SSL_MODE"),
 	)
 
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Printf("Connection Error: %v\n", err)
-		return nil, err
+		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	err = DB.AutoMigrate(&model.User{})
-	if err != nil {
-		log.Printf("Migration Error: %v\n", err)
-		return nil, err
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		return nil, fmt.Errorf("error running migrations: %w", err)
 	}
 
-	log.Printf("Connected!")
-	return DB, nil
+	return db, nil
 }

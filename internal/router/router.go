@@ -1,7 +1,10 @@
 package router
 
 import (
+	"log/slog"
+
 	"github.com/H0wZy/authsys/internal/handler"
+	"github.com/H0wZy/authsys/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,8 +13,11 @@ type Handlers struct {
 	Auth *handler.AuthHandler
 }
 
-func New(h Handlers) *gin.Engine {
-	r := gin.Default()
+func New(h Handlers, logger *slog.Logger) *gin.Engine {
+	r := gin.New()
+
+	r.Use(middleware.Logger(logger))
+	r.Use(gin.Recovery())
 
 	v1 := r.Group("/api/v1")
 	{

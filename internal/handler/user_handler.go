@@ -17,7 +17,8 @@ func (ctrl *UserHandler) Create(ctx *gin.Context) {
 	var input dto.CreateUser
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		response.BadRequest(ctx, "error while binding json:", err.Error())
+		ctx.Error(err)
+		response.BadRequest(ctx, "invalid request body")
 		return
 	}
 
@@ -32,6 +33,7 @@ func (ctrl *UserHandler) Create(ctx *gin.Context) {
 			response.BadRequest(ctx, err.Error())
 
 		default:
+			ctx.Error(err)
 			response.InternalServerError(ctx)
 		}
 
