@@ -42,7 +42,7 @@ func (u *userRepository) Delete(ctx context.Context, id uint) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("error deleting user: %w", gorm.ErrRecordNotFound)
+		return ErrUserNotFound
 	}
 
 	return nil
@@ -52,6 +52,9 @@ func (u *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	var user model.User
 
 	if err := u.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
 		return nil, fmt.Errorf("error finding user by email: %w", err)
 	}
 
@@ -62,6 +65,9 @@ func (u *userRepository) FindByUsername(ctx context.Context, username string) (*
 	var user model.User
 
 	if err := u.db.WithContext(ctx).Where("username = ?", username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
 		return nil, fmt.Errorf("error finding user by username: %w", err)
 	}
 
@@ -72,6 +78,9 @@ func (u *userRepository) FindByID(ctx context.Context, id uint) (*model.User, er
 	var user model.User
 
 	if err := u.db.WithContext(ctx).First(&user, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
 		return nil, fmt.Errorf("error finding user by id: %w", err)
 	}
 

@@ -11,7 +11,6 @@ import (
 	"github.com/H0wZy/authsys/internal/model"
 	"github.com/H0wZy/authsys/internal/repository"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 var (
@@ -19,7 +18,7 @@ var (
 	ErrEmailAlreadyExists    = errors.New("email already exists")
 	ErrUsernameAlreadyExists = errors.New("username already exists")
 	ErrUsernameCantContainAt = errors.New("username cannot contain '@'")
-	ErrUserNotFound          = errors.New("user not found")
+	ErrUserNotFound          = repository.ErrUserNotFound
 )
 
 type UserService interface {
@@ -48,7 +47,7 @@ func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model
 	if err == nil {
 		return nil, ErrEmailAlreadyExists
 	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, repository.ErrUserNotFound) {
 		return nil, fmt.Errorf("error checking email: %w", err)
 	}
 
@@ -56,7 +55,7 @@ func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model
 	if err == nil {
 		return nil, ErrUsernameAlreadyExists
 	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, repository.ErrUserNotFound) {
 		return nil, fmt.Errorf("error checking username: %w", err)
 	}
 
