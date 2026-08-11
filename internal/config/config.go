@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const minSecretLeng = 32
+const minSecretLen = 32
 
 type Config struct {
 	DatabaseDSN   string
@@ -45,8 +45,8 @@ func Load() (*Config, error) {
 	var l loader
 
 	secret := l.required("JWT_SECRET")
-	if secret != "" && len(secret) < minSecretLeng {
-		l.errs = append(l.errs, fmt.Errorf("JWT_SECRET must be at least %d bytes, but got %d", minSecretLeng, len(secret)))
+	if secret != "" && len(secret) < minSecretLen {
+		l.errs = append(l.errs, fmt.Errorf("JWT_SECRET must be at least %d bytes, but got %d", minSecretLen, len(secret)))
 	}
 
 	cfg := &Config{
