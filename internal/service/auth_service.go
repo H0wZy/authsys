@@ -24,7 +24,7 @@ type AuthService interface {
 
 type authService struct {
 	repo repository.UserRepository
-	jwtm jwt.JwtManager
+	jwtm jwt.Manager
 }
 
 func (s *authService) Login(ctx context.Context, dto *dto.Auth) (string, error) {
@@ -55,6 +55,6 @@ func (s *authService) Logout(ctx context.Context, user *model.User) error {
 	panic("unimplemented")
 }
 
-func NewAuthService(repo repository.UserRepository, jwtm jwt.JwtManager) AuthService {
+func NewAuthService(repo repository.UserRepository, jwtm jwt.Manager) AuthService {
 	return &authService{repo: repo, jwtm: jwtm}
 }

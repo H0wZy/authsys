@@ -32,7 +32,7 @@ func main() {
 
 	logger.Info("database connected!")
 
-	jwtManager := jwt.NewJwtManager(cfg.JWTSecret, cfg.JWTExpiration)
+	jwtManager := jwt.NewManager(cfg.JWTSecret, cfg.JWTExpiration, cfg.JWTIssuer)
 
 	userRepository := repository.NewUserRepository(conn)
 

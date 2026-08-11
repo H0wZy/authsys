@@ -15,6 +15,7 @@ type Config struct {
 	DatabaseDSN   string
 	JWTSecret     []byte
 	JWTExpiration time.Duration
+	JWTIssuer     string
 	ServerAddr    string
 }
 
@@ -60,6 +61,7 @@ func Load() (*Config, error) {
 		),
 		JWTSecret:     []byte(secret),
 		JWTExpiration: 24 * time.Hour,
+		JWTIssuer:     l.optional("JWT_ISSUER", "authsys"),
 		ServerAddr:    ":" + l.optional("PORT", "8080"),
 	}
 
