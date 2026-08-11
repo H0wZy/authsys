@@ -3,8 +3,8 @@ package main
 import (
 	"log/slog"
 	"os"
-	"time"
 
+	"github.com/H0wZy/authsys/internal/config"
 	"github.com/H0wZy/authsys/internal/db"
 	"github.com/H0wZy/authsys/internal/handler"
 	"github.com/H0wZy/authsys/internal/jwt"
@@ -18,7 +18,13 @@ func main() {
 		Level: slog.LevelInfo,
 	}))
 
-	conn, err := db.Connect()
+	cfg, err := config.Load()
+	if err != nil {
+		logger.Error("invalid configuration", slog.Any("error", err))
+		os.Exit(1)
+	}
+
+	conn, err := db.Connect(cfg.DatabaseDSN)
 	if err != nil {
 		logger.Error("failed to connect to database", slog.Any("error", err))
 		os.Exit(1)
@@ -26,8 +32,7 @@ func main() {
 
 	logger.Info("database connected!")
 
-	secret := []byte(os.Getenv("JWT_SECRET"))
-	jwtManager := jwt.NewJwtManager(secret, 24*time.Hour)
+	jwtManager := jwt.NewJwtManager(cfg.JWTSecret, cfg.JWTExpiration)
 
 	userRepository := repository.NewUserRepository(conn)
 
@@ -44,7 +49,7 @@ func main() {
 
 	r := router.New(h, logger)
 
-	if err := r.Run(); err != nil {
+	if err := r.Run(cfg.ServerAddr); err != nil {
 		logger.Error("failed to start server", slog.Any("error", err))
 		os.Exit(1)
 	}
