@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/H0wZy/authsys/internal/dto"
@@ -37,7 +38,10 @@ func (s *authService) Login(ctx context.Context, dto *dto.Auth) (string, error) 
 	}
 
 	if err != nil {
-		return "", ErrInvalidCredentials
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return "", ErrInvalidCredentials
+		}
+		return "", fmt.Errorf("error finding user: %w", err)
 	}
 
 	if bcryptErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(dto.Password)); bcryptErr != nil {
