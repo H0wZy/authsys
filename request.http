@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:8080/api/v1
+@contentType = application/json
+
+@username = johndoe5
+@email = johndoe5@example.com
+@fullName = John Doe
+@password = StrongPass123.
+@phone = 43988888888
+@birthDate = 2002-11-23T00:00:00Z
+
+### create user
+# @name createUser
+POST {{baseUrl}}/user
+Content-Type: {{contentType}}
+
+{
+    "username": "{{username}}",
+    "email": "{{email}}",
+    "name": "{{fullName}}",
+    "password": "{{password}}",
+    "phone": "{{phone}}",
+    "birth_date": "{{birthDate}}"
+}
+
+### login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "login": "{{username}}",
+    "password": "{{password}}"
+}
+
+### logout
+# @name logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### 404 - unknown route
+GET {{baseUrl}}/does-not-exist
+
+### 404 - GET is not registered on /user, only POST
+GET {{baseUrl}}/user
