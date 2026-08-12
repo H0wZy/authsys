@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/H0wZy/authsys/internal/model"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -19,8 +20,12 @@ type UserRepository interface {
 	Delete(ctx context.Context, id uint) error
 }
 
+const uniqueViolation = "23505"
+
 var (
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserNotFound  = errors.New("user not found")
+	ErrEmailTaken    = errors.New("email already exists")
+	ErrUsernameTaken = errors.New("username already exists")
 )
 
 type userRepository struct {
@@ -29,6 +34,15 @@ type userRepository struct {
 
 func (u *userRepository) Create(ctx context.Context, user *model.User) error {
 	if err := u.db.WithContext(ctx).Create(user).Error; err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
+			switch pgErr.ConstraintName {
+			case "idx_users_email":
+				return ErrEmailTaken
+			case "idx_users_username":
+				return ErrUsernameTaken
+			}
+		}
 		return fmt.Errorf("error creating user: %w", err)
 	}
 	return nil

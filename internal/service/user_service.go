@@ -35,28 +35,12 @@ type userService struct {
 }
 
 func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model.User, error) {
-	if input.BirthDate.After(time.Now()) {
+	if input.BirthDate.IsZero() || input.BirthDate.After(time.Now()) {
 		return nil, ErrInvalidBirthDate
 	}
 
 	if strings.Contains(input.Username, "@") {
 		return nil, ErrUsernameCantContainAt
-	}
-
-	_, err := s.repo.FindByEmail(ctx, input.Email)
-	if err == nil {
-		return nil, ErrEmailAlreadyExists
-	}
-	if !errors.Is(err, repository.ErrUserNotFound) {
-		return nil, fmt.Errorf("error checking email: %w", err)
-	}
-
-	_, err = s.repo.FindByUsername(ctx, input.Username)
-	if err == nil {
-		return nil, ErrUsernameAlreadyExists
-	}
-	if !errors.Is(err, repository.ErrUserNotFound) {
-		return nil, fmt.Errorf("error checking username: %w", err)
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
@@ -71,9 +55,20 @@ func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model
 		Password:  string(hash),
 		Phone:     input.Phone,
 		BirthDate: input.BirthDate,
+		Account: model.Account{
+			IsOnline:            false,
+			FailedLoginAttempts: 0,
+			IsAccountDisabled:   false,
+		},
 	}
 
 	if err := s.repo.Create(ctx, user); err != nil {
+		switch {
+		case errors.Is(err, repository.ErrEmailTaken):
+			return nil, ErrEmailAlreadyExists
+		case errors.Is(err, repository.ErrUsernameTaken):
+			return nil, ErrUsernameAlreadyExists
+		}
 		return nil, fmt.Errorf("error creating user: %w", err)
 	}
 
