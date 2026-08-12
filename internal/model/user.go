@@ -13,15 +13,15 @@ type User struct {
 	Name      string    `gorm:"type:varchar(255);not null" json:"name"`
 	Password  string    `gorm:"type:varchar(60);not null" json:"-"`
 	Phone     string    `gorm:"type:varchar(20);not null" json:"phone"`
-	BirthDate time.Time `json:"birth_date"`
+	BirthDate time.Time `gorm:"type:date;not null" json:"birth_date"`
 	Account
 }
 
 type Account struct {
-	IsOnline            bool       `json:"is_online"`
+	IsOnline            bool       `gorm:"not null" json:"is_online"`
 	LastLoginAt         *time.Time `json:"last_login_at,omitempty"`
 	LastLogoutAt        *time.Time `json:"last_logout_at,omitempty"`
-	FailedLoginAttempts int        `gorm:"default:0" json:"-"`
+	FailedLoginAttempts int        `gorm:"not null" json:"-"`
 	LockedUntil         *time.Time `json:"-"`
-	IsAccountDisabled   bool       `gorm:"default:true" json:"is_account_disabled"`
+	IsAccountDisabled   bool       `gorm:"not null" json:"is_account_disabled"`
 }

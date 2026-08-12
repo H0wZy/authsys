@@ -12,7 +12,7 @@ type CreateUser struct {
 	Name      string    `json:"name" binding:"required"`
 	Password  string    `json:"password" binding:"required,min=8"`
 	Phone     string    `json:"phone" binding:"required"`
-	BirthDate time.Time `json:"birth_date"`
+	BirthDate time.Time `json:"birth_date" binding:"required"`
 }
 
 type UserResponse struct {

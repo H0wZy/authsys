@@ -3,7 +3,6 @@ package db
 import (
 	"fmt"
 
-	"github.com/H0wZy/authsys/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,8 +13,13 @@ func Connect(dsn string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
-	if err := db.AutoMigrate(&model.User{}); err != nil {
-		return nil, fmt.Errorf("error running migrations: %w", err)
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("error accessing sql handle: %w", err)
+	}
+
+	if err := sqlDB.Ping(); err != nil {
+		return nil, fmt.Errorf("error pinging database: %w", err)
 	}
 
 	return db, nil
