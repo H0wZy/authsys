@@ -67,6 +67,7 @@ func (s *userService) Create(ctx context.Context, input *dto.CreateUser) (*model
 	user := &model.User{
 		Username:  input.Username,
 		Email:     input.Email,
+		Name:      input.Name,
 		Password:  string(hash),
 		Phone:     input.Phone,
 		BirthDate: input.BirthDate,
