@@ -5,6 +5,11 @@ type Auth struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
 type AuthResponse struct {
-	Token string `json:"token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }

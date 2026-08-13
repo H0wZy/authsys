@@ -35,11 +35,12 @@ func main() {
 	jwtManager := jwt.NewManager(cfg.JWTSecret, cfg.JWTExpiration, cfg.JWTIssuer)
 
 	userRepository := repository.NewUserRepository(conn)
+	refreshTokenRepository := repository.NewRefreshTokenRepository(conn)
 
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
 
-	authService := service.NewAuthService(userRepository, jwtManager)
+	authService := service.NewAuthService(userRepository, refreshTokenRepository, jwtManager)
 	authHandler := handler.NewAuthHandler(authService)
 
 	h := router.Handlers{

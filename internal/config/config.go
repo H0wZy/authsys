@@ -60,7 +60,9 @@ func Load() (*Config, error) {
 			l.optional("SSL_MODE", "disable"),
 		),
 		JWTSecret:     []byte(secret),
-		JWTExpiration: 24 * time.Hour,
+		// Curto de propósito: o access token não é revogável. A renovação é
+		// responsabilidade do refresh token, que vive no banco e pode ser revogado.
+		JWTExpiration: 15 * time.Minute,
 		JWTIssuer:     l.optional("JWT_ISSUER", "authsys"),
 		ServerAddr:    ":" + l.optional("PORT", "8080"),
 	}

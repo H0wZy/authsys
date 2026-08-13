@@ -22,12 +22,12 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.Login(ctx.Request.Context(), &input)
+	pair, err := h.authService.Login(ctx.Request.Context(), &input)
 
 	if err != nil {
 		switch {
 		case errors.Is(err, service.ErrInvalidCredentials):
-			response.Unauthorized(ctx, err.Error())
+			response.Unauthorized(ctx, "invalid credentials")
 
 		default:
 			ctx.Error(err)
@@ -37,11 +37,52 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	response.Ok(ctx, dto.AuthResponse{Token: token}, "login successfull!")
+	response.Ok(ctx, pair, "login successful!")
+}
+
+func (h *AuthHandler) Refresh(ctx *gin.Context) {
+	var input dto.RefreshRequest
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.Error(err)
+		response.BadRequest(ctx, "invalid request body")
+		return
+	}
+
+	pair, err := h.authService.Refresh(ctx.Request.Context(), input.RefreshToken)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, service.ErrInvalidRefreshToken):
+			response.Unauthorized(ctx, "invalid refresh token")
+
+		default:
+			ctx.Error(err)
+			response.InternalServerError(ctx)
+		}
+
+		return
+	}
+
+	response.Ok(ctx, pair, "token refreshed!")
 }
 
 func (h *AuthHandler) Logout(ctx *gin.Context) {
-	panic("unimplemented")
+	var input dto.RefreshRequest
+
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		ctx.Error(err)
+		response.BadRequest(ctx, "invalid request body")
+		return
+	}
+
+	if err := h.authService.Logout(ctx.Request.Context(), input.RefreshToken); err != nil {
+		ctx.Error(err)
+		response.InternalServerError(ctx)
+		return
+	}
+
+	response.Ok(ctx, nil, "logout successful!")
 }
 
 func NewAuthHandler(authService service.AuthService) *AuthHandler {

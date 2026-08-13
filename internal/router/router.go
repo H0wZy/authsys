@@ -23,6 +23,7 @@ func New(h Handlers, logger *slog.Logger) *gin.Engine {
 	{
 		v1.POST("/user", h.User.Create)
 		v1.POST("/auth/login", h.Auth.Login)
+		v1.POST("/auth/refresh", h.Auth.Refresh)
 		v1.POST("/auth/logout", h.Auth.Logout)
 	}
 
