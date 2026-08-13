@@ -41,6 +41,10 @@ func BadRequest(ctx *gin.Context, message string, errors ...string) {
 	send(ctx, http.StatusBadRequest, false, message, nil, errors)
 }
 
+func Unauthorized(ctx *gin.Context, message ...string) {
+	send(ctx, http.StatusUnauthorized, false, firstOr("unauthorized.", message...), nil, nil)
+}
+
 func NotFound(ctx *gin.Context, message ...string) {
 	send(ctx, http.StatusNotFound, false, firstOr("resource not found.", message...), nil, nil)
 }
