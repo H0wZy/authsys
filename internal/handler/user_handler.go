@@ -13,7 +13,7 @@ type UserHandler struct {
 	userService service.UserService
 }
 
-func (ctrl *UserHandler) Create(ctx *gin.Context) {
+func (h *UserHandler) Create(ctx *gin.Context) {
 	var input dto.CreateUser
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -22,7 +22,7 @@ func (ctrl *UserHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	user, err := ctrl.userService.Create(ctx.Request.Context(), &input)
+	user, err := h.userService.Create(ctx.Request.Context(), &input)
 
 	if err != nil {
 		switch {
