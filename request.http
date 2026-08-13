@@ -32,10 +32,31 @@ Content-Type: {{contentType}}
     "password": "{{password}}"
 }
 
+### refresh
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refresh_token": "{{login.response.body.$.data.refresh_token}}"
+}
+
+### refresh again with the SAME token - must return 401 and kill every session
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+    "refresh_token": "{{login.response.body.$.data.refresh_token}}"
+}
+
 ### logout
 # @name logout
 POST {{baseUrl}}/auth/logout
-Authorization: Bearer {{login.response.body.$.data.token}}
+Content-Type: {{contentType}}
+
+{
+    "refresh_token": "{{refresh.response.body.$.data.refresh_token}}"
+}
 
 ### 404 - unknown route
 GET {{baseUrl}}/does-not-exist
